@@ -860,7 +860,7 @@ enumdone:   xorrts      ac, ac, 1
         ;   X0:     bobctx pointer
         ;   X1:     16-bit int to be treated as signed
 
-b_updateCC: movrtn      x1, x1, 16              ; get sign bit
+b_updateCC: movrtn      x1, x1, 21              ; get sign bit
 
             xorr        ac, ac                  ; Zero     -> CC == 0
 
@@ -897,7 +897,7 @@ b_fetch:    ld          x1, bc_pc(x0)           ; mar = pc++
         ;   X0:     bobctx pointer
 
 b_evalAddr: ld          x1, bc_ir(x0)
-            movrz       x1, x2, 12, 32
+            movrz       x1, x2, 24, 32
             addea       x2, .b_ea_table
             jmp         @(x2)
 
@@ -920,14 +920,14 @@ b_ea_table: dw          b_ea_none,              ; NOP
 
 b_ea_none:  retr
 
-b_ea_1:     movrtn      x1, x1, 9
+b_ea_1:     movrtn      x1, x1, 28
             movm        x1, x1, 27
             add         x1, bc_pc(x0)
             movmz       x1, x1, 20
             st          x1, bc_mar(x0)
             retr
 
-b_ea_2:     movrtn      x1, x1, 9               ; dedupe?
+b_ea_2:     movrtn      x1, x1, 28              ; dedupe?
             movm        x1, x1, 27              ; maybe move away from a jump
             add         x1, bc_pc(x0)           ; table?
             movmz       x1, x1, 20
@@ -939,11 +939,11 @@ b_ea_2:     movrtn      x1, x1, 9               ; dedupe?
             st          bc_mar(x0)
             retr
 
-b_ea_3:     movrtn      x1, x1, 6
+b_ea_3:     movrtn      x1, x1, 31
             movm        x1, x1, 30
 
             ld          x2, bc_ir(x0)
-            movrz       x2, x2, 6, 33
+            movrz       x2, x2, 30, 33
             addr        x0, x2
 
             add         x1, (x2)
@@ -956,7 +956,7 @@ b_ea_3:     movrtn      x1, x1, 6
         ;   X0:     bobctx pointer
 
 b_fetchOpr: ld          x1, bc_ir(x0)
-            movrz       x1, x1, 12, 32
+            movrz       x1, x1, 24, 32
 
             addin.cz    x1, x1, -4              ; if flag set then x1 was >= 4
             addizn.cn   x1, x1, -7              ; if flag set then x1 was > 6
@@ -974,7 +974,7 @@ b_fetchOpr: ld          x1, bc_ir(x0)
         ;   X0:     bobctx pointer
 
 b_execute:  ld          x1, bc_ir(x0)
-            movrz       x1, x2, 12, 32
+            movrz       x1, x2, 24, 32
             addea       x2, .b_ex_table
             jmp         @(x2)
 
@@ -998,7 +998,7 @@ b_ex_table: dw          b_ex_nop,               ; NOP
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ; ADD
         
-b_ex_add:   movrz       x1, x2, 7, 34
+b_ex_add:   movrz       x1, x2, 29, 34
             addea       x2, .b_add_tabl
             jmp         @(x2)
 
@@ -1010,22 +1010,22 @@ b_add_tabl: dw          b_add_0,
 b_add_0:    movmzn.rn   x1, x1, 35
             jmp         .bad_inst
             
-            movrz       x1, x2, 4, 33
+            movrz       x1, x2, 32, 33
             addr        x0, x2
             ld          (x2)
             
-            movrz       x1, x2, 1, 33
+            movrz       x1, x2, 35, 33
             addr        x0, x2
             add         (x2)
             
             st          bc_ac(x0)
             retr
 
-b_add_1:    movrz       x1, x2, 4, 33
+b_add_1:    movrz       x1, x2, 32, 33
             addr        x0, x2
             ld          (x2)
             
-            movrtn      x1, x1, 4
+            movrtn      x1, x1, 33
             movm        x1, x2, 32
             addr        x2, ac
             
@@ -1035,22 +1035,22 @@ b_add_1:    movrz       x1, x2, 4, 33
 b_add_2:    movmzn.rn   x1, x1, 31
             jmp         .bad_inst
             
-            movrz       x1, x2, 9, 33
+            movrz       x1, x2, 27, 33
             addr        x0, x2
             ld          (x2)
             
-            movrz       x1, x2, 4, 33
+            movrz       x1, x2, 32, 33
             addr        x0, x2
             add         (x2)
             
             st          bc_ac(x0)
             retr
 
-b_add_3:    movrz       x1, x2, 9, 33
+b_add_3:    movrz       x1, x2, 27, 33
             addr        x0, x2
             ld          (x2)
             
-            movrtn      x1, x1, 7
+            movrtn      x1, x1, 30
             movm        x1, x2, 29
             addr        x2, ac
             
@@ -1060,7 +1060,7 @@ b_add_3:    movrz       x1, x2, 9, 33
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ; AND
 
-b_ex_and:   movrz       x1, x2, 7, 34
+b_ex_and:   movrz       x1, x2, 29, 34
             addea       x2, .b_and_tabl
             jmp         @(x2)
 
@@ -1072,22 +1072,22 @@ b_and_tabl: dw          b_and_0,
 b_and_0:    movmzn.rn   x1, x1, 35
             jmp         .bad_inst
             
-            movrz       x1, x2, 4, 33
+            movrz       x1, x2, 32, 33
             addr        x0, x2
             ld          (x2)
             
-            movrz       x1, x2, 1, 33
+            movrz       x1, x2, 35, 33
             addr        x0, x2
             and         (x2)
             
             st          bc_ac(x0)
             retr
 
-b_and_1:    movrz       x1, x2, 4, 33
+b_and_1:    movrz       x1, x2, 32, 33
             addr        x0, x2
             ld          (x2)
             
-            movrtn      x1, x1, 4
+            movrtn      x1, x1, 33
             movm        x1, x2, 32
             andr        x2, ac
             
@@ -1097,22 +1097,22 @@ b_and_1:    movrz       x1, x2, 4, 33
 b_and_2:    movmzn.rn   x1, x1, 31
             jmp         .bad_inst
             
-            movrz       x1, x2, 9, 33
+            movrz       x1, x2, 27, 33
             addr        x0, x2
             ld          (x2)
             
-            movrz       x1, x2, 4, 33
+            movrz       x1, x2, 32, 33
             addr        x0, x2
             and         (x2)
             
             st          bc_ac(x0)
             retr
 
-b_and_3:    movrz       x1, x2, 9, 33
+b_and_3:    movrz       x1, x2, 27, 33
             addr        x0, x2
             ld          (x2)
             
-            movrtn      x1, x1, 7
+            movrtn      x1, x1, 30
             movm        x1, x2, 29
             andr        x2, ac
             
@@ -1125,9 +1125,9 @@ b_and_3:    movrz       x1, x2, 9, 33
 b_ex_not:   movmzn.rn   x1, x1, 31
             jmp         .bad_inst
             
-            movrzn.rn   x1, x1, 8, 28
-            movrz.sk    x1, x2, 5, 33
-            movrz       x1, x2, 9, 33
+            movrzn.rn   x1, x1, 28, 28
+            movrz.sk    x1, x2, 31, 33
+            movrz       x1, x2, 27, 33
             
             addr        x0, x2
             ldcom       (x2)
