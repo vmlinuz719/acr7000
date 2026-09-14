@@ -860,18 +860,16 @@ enumdone:   xorrts      ac, ac, 1
         ;   X0:     bobctx pointer
         ;   X1:     16-bit int to be treated as signed
 
-b_updateCC: movrtn      x1, x1, 21              ; get sign bit
+b_updateCC: xorrts      ac, ac, 2               ; Zero     -> CC = 2
 
-            xorr        ac, ac                  ; Zero     -> CC == 0
+            movr.rz     x1, x1
+            jmp         .b_upC_writ
+            movr        ac, ac, 35              ; Nonzero  -> CC = 1
 
-            movrn.rn    x1, x1                  ; Positive -> CC == 1
-            incr        ac, ac
+            movrn.rn    x1, x1, 21, 35          ; Negative -> CC = 4
+            movr        ac, ac, 2
 
-            movrn.cn    x1, x1                  ; Negative -> CC == 2
-            incr        ac, ac
-
-            st          bc_cc(x0)
-
+b_upC_writ: st          bc_cc(x0)
             retr
 
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
