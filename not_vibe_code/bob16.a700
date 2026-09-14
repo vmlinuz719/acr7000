@@ -897,24 +897,22 @@ b_fetch:    ld          x1, bc_pc(x0)           ; mar = pc++
         ;   X0:     bobctx pointer
 
 b_evalAddr: ld          x1, bc_ir(x0)
-            movrz       x1, x1, 12, 32
-            addea       x1, .b_ea_table
-            jmp         @(x1)
+            movrz       x1, x2, 12, 32
+            addea       x2, .b_ea_table
+            jmp         @(x2)
 
 b_ea_none:  retr
 
-b_ea_1:     ld          x1, bc_ir(x0)
-            movrtn      x1, x1, 9
+b_ea_1:     movrtn      x1, x1, 9
             movm        x1, x1, 27
             add         x1, bc_pc(x0)
             movmz       x1, x1, 20
             st          x1, bc_mar(x0)
             retr
 
-b_ea_2:     ld          x1, bc_ir(x0)           ; dedupe?
-            movrtn      x1, x1, 9               ; maybe move away from a jump
-            movm        x1, x1, 27              ; table?
-            add         x1, bc_pc(x0)
+b_ea_2:     movrtn      x1, x1, 9               ; dedupe?
+            movm        x1, x1, 27              ; maybe move away from a jump
+            add         x1, bc_pc(x0)           ; table?
             movmz       x1, x1, 20
             st          x1, bc_mar(x0)
 
@@ -924,8 +922,7 @@ b_ea_2:     ld          x1, bc_ir(x0)           ; dedupe?
             st          bc_mar(x0)
             retr
 
-b_ea_3:     ld          x1, bc_ir(x0)
-            movrtn      x1, x1, 6
+b_ea_3:     movrtn      x1, x1, 6
             movm        x1, x1, 30
 
             ld          x2, bc_ir(x0)
@@ -977,11 +974,11 @@ b_fetchOpr: ld          x1, bc_ir(x0)
         ;   X0:     bobctx pointer
 
 b_execute:  ld          x1, bc_ir(x0)
-            movrz       x1, x1, 12, 32
-            addea       x1, .b_ex_table
-            jmp         @(x1)
+            movrz       x1, x2, 12, 32
+            addea       x2, .b_ex_table
+            jmp         @(x2)
             
-b_ex_add:
+b_ex_add:   
 
 b_ex_and:
 
