@@ -1125,7 +1125,7 @@ b_and_3:    movrz       x1, x2, 9, 33
 b_ex_not:   movmzn.rn   x1, x1, 31
             jmp         .bad_inst
             
-            movrzn.rn   x1, x1, 8, 28
+            movrzn.rn   x1, x1, 8, 35
             movrz.sk    x1, x2, 5, 33
             movrz       x1, x2, 9, 33
             
