@@ -972,6 +972,51 @@ b_fetchOpr: ld          x1, bc_ir(x0)
             retr
 
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ; b_execute:
+        ;
+        ;   X0:     bobctx pointer
+
+b_execute:  ld          x1, bc_ir(x0)
+            movrz       x1, x1, 12, 32
+            addea       x1, .b_ex_table
+            jmp         @(x1)
+            
+b_ex_add:
+
+b_ex_and:
+
+b_ex_not:
+
+b_ex_br:
+
+b_ex_jmp:
+
+b_ex_jsr:
+
+b_ex_ret:
+
+b_ex_trap:
+
+b_ex_nop:   retr
+
+b_ex_table: dw          b_ex_nop,               ; NOP
+                        b_ex_add,               ; ADD
+                        b_ex_and,               ; AND
+                        b_ex_not,               ; NOT
+                        b_ex_nop,               ; LD
+                        b_ex_nop,               ; LDI
+                        b_ex_nop,               ; LDR
+                        b_ex_nop,               ; ST
+                        b_ex_nop,               ; STI
+                        b_ex_nop,               ; STR
+                        b_ex_br,                ; BR
+                        b_ex_jmp,               ; JMP
+                        b_ex_jsr,               ; JSR
+                        b_ex_nop,               ; LEA
+                        b_ex_ret,               ; RET
+                        b_ex_trap               ; TRAP
+
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ; Start MP/7000 execution...
 
 start:      ldea        sp, stack
