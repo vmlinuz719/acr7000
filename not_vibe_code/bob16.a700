@@ -1125,20 +1125,15 @@ b_and_3:    movrz       x1, x2, 9, 33
 b_ex_not:   movmzn.rn   x1, x1, 31
             jmp         .bad_inst
             
-            ldea        5
-            ldea        xy, 9
-            
             movrzn.rn   x1, x1, 8, 28
-            edits       ac, .b_not_sel
-            edit        xy, .b_not_sel
+            movrz.sk    x1, x2, 5, 33
+            movrz       x1, x2, 9, 33
             
             addr        x0, x2
             ldcom       (x2)
             movmz       ac, ac, 20
             st          bc_ac(x0)
             retr
-            
-b_not_sel:  movrz       x1, x2, 0, 33
 
 b_ex_br:
 
