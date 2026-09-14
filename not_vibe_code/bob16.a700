@@ -901,6 +901,23 @@ b_evalAddr: ld          x1, bc_ir(x0)
             addea       x2, .b_ea_table
             jmp         @(x2)
 
+b_ea_table: dw          b_ea_none,              ; NOP
+                        b_ea_none,              ; ADD
+                        b_ea_none,              ; AND
+                        b_ea_none,              ; NOT
+                        b_ea_1,                 ; LD
+                        b_ea_2,                 ; LDI
+                        b_ea_3,                 ; LDR
+                        b_ea_1,                 ; ST
+                        b_ea_2,                 ; STI
+                        b_ea_3,                 ; STR
+                        b_ea_1,                 ; BR
+                        b_ea_none,              ; JMP
+                        b_ea_none,              ; JSR
+                        b_ea_1,                 ; LEA
+                        b_ea_none,              ; RET
+                        b_ea_none               ; TRAP
+
 b_ea_none:  retr
 
 b_ea_1:     movrtn      x1, x1, 9
@@ -933,23 +950,6 @@ b_ea_3:     movrtn      x1, x1, 6
             st          x1, bc_mar(x0)
             retr
 
-b_ea_table: dw          b_ea_none,              ; NOP
-                        b_ea_none,              ; ADD
-                        b_ea_none,              ; AND
-                        b_ea_none,              ; NOT
-                        b_ea_1,                 ; LD
-                        b_ea_2,                 ; LDI
-                        b_ea_3,                 ; LDR
-                        b_ea_1,                 ; ST
-                        b_ea_2,                 ; STI
-                        b_ea_3,                 ; STR
-                        b_ea_1,                 ; BR
-                        b_ea_none,              ; JMP
-                        b_ea_none,              ; JSR
-                        b_ea_1,                 ; LEA
-                        b_ea_none,              ; RET
-                        b_ea_none               ; TRAP
-
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ; b_fetchOpr:
         ;
@@ -977,24 +977,6 @@ b_execute:  ld          x1, bc_ir(x0)
             movrz       x1, x2, 12, 32
             addea       x2, .b_ex_table
             jmp         @(x2)
-            
-b_ex_add:   
-
-b_ex_and:
-
-b_ex_not:
-
-b_ex_br:
-
-b_ex_jmp:
-
-b_ex_jsr:
-
-b_ex_ret:
-
-b_ex_trap:
-
-b_ex_nop:   retr
 
 b_ex_table: dw          b_ex_nop,               ; NOP
                         b_ex_add,               ; ADD
@@ -1012,6 +994,165 @@ b_ex_table: dw          b_ex_nop,               ; NOP
                         b_ex_nop,               ; LEA
                         b_ex_ret,               ; RET
                         b_ex_trap               ; TRAP
+                        
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ; ADD
+        
+b_ex_add:   movrz       x1, x2, 7, 34
+            addea       x2, .b_add_tabl
+            jmp         @(x2)
+
+b_add_tabl: dw          b_add_0,
+                        b_add_1,
+                        b_add_2,
+                        b_add_3
+
+b_add_0:    movmzn.rn   x1, x1, 35
+            jmp         .bad_inst
+            
+            movrz       x1, x2, 4, 33
+            addr        x0, x2
+            ld          (x2)
+            
+            movrz       x1, x2, 1, 33
+            addr        x0, x2
+            add         (x2)
+            
+            st          bc_ac(x0)
+            retr
+
+b_add_1:    movrz       x1, x2, 4, 33
+            addr        x0, x2
+            ld          (x2)
+            
+            movrtn      x1, x1, 4
+            movm        x1, x2, 32
+            addr        x2, ac
+            
+            st          bc_ac(x0)
+            retr
+
+b_add_2:    movmzn.rn   x1, x1, 31
+            jmp         .bad_inst
+            
+            movrz       x1, x2, 9, 33
+            addr        x0, x2
+            ld          (x2)
+            
+            movrz       x1, x2, 4, 33
+            addr        x0, x2
+            add         (x2)
+            
+            st          bc_ac(x0)
+            retr
+
+b_add_3:    movrz       x1, x2, 9, 33
+            addr        x0, x2
+            ld          (x2)
+            
+            movrtn      x1, x1, 7
+            movm        x1, x2, 29
+            addr        x2, ac
+            
+            st          bc_ac(x0)
+            retr
+
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ; AND
+
+b_ex_and:   movrz       x1, x2, 7, 34
+            addea       x2, .b_and_tabl
+            jmp         @(x2)
+
+b_and_tabl: dw          b_and_0,
+                        b_and_1,
+                        b_and_2,
+                        b_and_3
+
+b_and_0:    movmzn.rn   x1, x1, 35
+            jmp         .bad_inst
+            
+            movrz       x1, x2, 4, 33
+            addr        x0, x2
+            ld          (x2)
+            
+            movrz       x1, x2, 1, 33
+            addr        x0, x2
+            and         (x2)
+            
+            st          bc_ac(x0)
+            retr
+
+b_and_1:    movrz       x1, x2, 4, 33
+            addr        x0, x2
+            ld          (x2)
+            
+            movrtn      x1, x1, 4
+            movm        x1, x2, 32
+            andr        x2, ac
+            
+            st          bc_ac(x0)
+            retr
+
+b_and_2:    movmzn.rn   x1, x1, 31
+            jmp         .bad_inst
+            
+            movrz       x1, x2, 9, 33
+            addr        x0, x2
+            ld          (x2)
+            
+            movrz       x1, x2, 4, 33
+            addr        x0, x2
+            and         (x2)
+            
+            st          bc_ac(x0)
+            retr
+
+b_and_3:    movrz       x1, x2, 9, 33
+            addr        x0, x2
+            ld          (x2)
+            
+            movrtn      x1, x1, 7
+            movm        x1, x2, 29
+            andr        x2, ac
+            
+            st          bc_ac(x0)
+            retr
+
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ; NOT
+
+b_ex_not:   movmzn.rn   x1, x1, 31
+            jmp         .bad_inst
+            
+            ldea        5
+            ldea        xy, 9
+            
+            movrzn.rn   x1, x1, 8, 28
+            edits       ac, .b_not_sel
+            edit        xy, .b_not_sel
+            
+            addr        x0, x2
+            ldcom       (x2)
+            movmz       ac, ac, 20
+            st          bc_ac(x0)
+            retr
+            
+b_not_sel:  movrz       x1, x2, 0, 33
+
+b_ex_br:
+
+b_ex_jmp:
+
+b_ex_jsr:
+
+b_ex_ret:
+
+b_ex_trap:
+
+b_ex_nop:   retr
+
+bad_inst:   hlt
 
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ; Start MP/7000 execution...
