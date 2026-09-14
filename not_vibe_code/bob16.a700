@@ -1133,13 +1133,31 @@ b_ex_not:   movmzn.rn   x1, x1, 31
             st          bc_ac(x0)
             retr
 
-b_ex_br:
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ; BR
+
+b_ex_br:    movrz       x1, x2, 27, 33
+            and         x2, bc_cc(x0)
+            movr.rz     x2, x2
+            retr
+            
+            movrtn      x1, x1, 28
+            movm        x1, x2, 27
+            add         x2, bc_pc(x0)
+            movrz       x2, x2, 20
+            st          x2, bc_pc(x0)
+            retr
 
 b_ex_jmp:
 
 b_ex_jsr:
 
-b_ex_ret:
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ; RET
+
+b_ex_ret:   ld          7(x0)
+            st          bc_pc(x0)
+            retr
 
 b_ex_trap:
 
