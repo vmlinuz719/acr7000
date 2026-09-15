@@ -1168,6 +1168,12 @@ b_ex_jsr:   ld          bc_pc(x0)
             
             movrzn.rz   x1, x1, 25, 35
             jmp         .b_jsrr
+            
+            movrz       x1, x2, 28, 33
+            addr        x0, x2
+            ld          (x2)
+            st          bc_pc(x0)
+            retr
 
 b_jsrr:     movrtn      x1, x1, 26
             movm        x1, x2, 25
