@@ -1123,7 +1123,7 @@ b_and_3:    movrz       x1, x2, 27, 33
 b_ex_not:   movmzn.rn   x1, x1, 31
             jmp         .bad_inst
             
-            movrzn.rn   x1, x1, 28, 35
+            movrzn.rz   x1, x1, 28, 35
             movrz.sk    x1, x2, 31, 33
             movrz       x1, x2, 27, 33
             
@@ -1148,9 +1148,33 @@ b_ex_br:    movrz       x1, x2, 27, 33
             st          x2, bc_pc(x0)
             retr
 
-b_ex_jmp:
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ; JMP
 
-b_ex_jsr:
+b_ex_jmp:   movmzn.rn   x1, x1, 27
+            jmp         .bad_inst
+
+            movrz       x1, x2, 27, 33
+            addr        x0, x2
+            ld          (x2)
+            st          bc_pc(x0)
+            retr
+
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ; JSR
+
+b_ex_jsr:   ld          bc_pc(x0)
+            st          7(x0)
+            
+            movrzn.rz   x1, x1, 25, 35
+            jmp         .b_jsrr
+
+b_jsrr:     movrtn      x1, x1, 26
+            movm        x1, x2, 25
+            add         x2, bc_pc(x0)
+            movrz       x2, x2, 20
+            st          x2, bc_pc(x0)
+            retr
 
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ; RET
