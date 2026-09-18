@@ -223,8 +223,7 @@ void *subch(void *vctx) {
                 }
                 
                 if (chain) {
-                    subchannel->caw++;
-                    subchannel->caw &= MASK_ADDR;
+                    subchannel->caw = (subchannel->caw + 1) & MASK_ADDR;
                 } else {
                     subchannel->command = 0;
                     break;
@@ -261,7 +260,7 @@ uint64_t msch_io(
     }
     
     else if (transfer == 3) {
-        ctx->subchannel[ctx->subch_select].caw = data;
+        ctx->subchannel[ctx->subch_select].caw = data & MASK_ADDR;
     }
     
     else if (transfer == 8) { // interrupt pop
@@ -282,37 +281,47 @@ uint64_t msch_io(
                 }
             } break;
             case 2: {
-                // ctx->command = 0;
                 clear_done(ctx, ctx->subch_select);
             } break;
+            case 3: {
+                subchannel->command = 0;
+            }
+        }
+    }
+
+    if (transfer == 14) {
+        int status = (subchannel->done << 1) | (subchannel->command & 1);
+        result = (uint64_t) status;
+    }
+    
+    else if (transfer == 0) {   // CSW0
+        result = (subchannel->caw & MASK_ADDR)
+            | (((uint64_t) (ctx->subch_select)) << 27);
+    }
+
+    else if (transfer == 2) {   // CSW1
+        result = (subchannel->residual & MASK_ADDR)
+            | (subchannel->flags << 27);
+    }
+    
+    else if (transfer == 4) {   // ident
+        result = ((uint64_t) ctx->model & 0x1FF) << 27;
+        
+        for (int i = 0; i < 16; i++) {
+            if (ctx->subchannel[i].attached) {
+                result |= 1L << (15 - i);
+            }
         }
     }
     
-    if (transfer == 8) {
+    else if (transfer == 6) {   // sense
+        result = subchannel->sense_reg(subchannel);
+    }
+    
+    else if (transfer == 8) {   
         result = intr_poll_result;
     }
     
-    // TODO: status polling, CSW, sense
-
-    /*
-    if (transfer == 14) {
-        int status = (ctx->done << 1) | (ctx->command & 1);
-        return (uint64_t) status;
-    }
-    
-    else if (transfer == 0) {
-        return pop_char(ctx);
-    }
-
-    else if (transfer == 2) {
-        return (ctx->control << 8) | ctx->threshold;
-    }
-
-    else if (transfer == 4) {
-        return ctx->len;
-    }
-    
-    else */ 
     pthread_mutex_unlock(&ctx->status_lock);
     return result;
 }
@@ -372,7 +381,7 @@ int sc_detach(acr7k_cu_t *cpu, int id, int sc_id) {
     return 0;
 }
 
-void init_msch(acr7k_cu_t *cpu, int id, int irq) {
+void init_msch(acr7k_cu_t *cpu, int id, int irq, int model) {
     acr7k_msch_t *ctx = calloc(sizeof(acr7k_msch_t), 1);
     cpu->ioctx[id] = ctx;
     cpu->io_destroy[id] = destroy_msch;
@@ -381,6 +390,7 @@ void init_msch(acr7k_cu_t *cpu, int id, int irq) {
     ctx->cpu = cpu;
     ctx->id = id;
     ctx->irq = irq;
+    ctx->model = model;
     
     ctx->lowest_subch_done = 16; // start with all clear
     

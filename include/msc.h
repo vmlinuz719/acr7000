@@ -3,7 +3,7 @@
 
 #include "cpu.h"
 
-void init_msch(acr7k_cu_t *cpu, int id, int irq);
+void init_msch(acr7k_cu_t *cpu, int id, int irq, int model);
 
 int sc_attach(acr7k_cu_t *cpu, int id, int sc_id);
 int sc_detach(acr7k_cu_t *cpu, int id, int sc_id);
@@ -25,8 +25,6 @@ typedef struct acr7k_subch {
     uint64_t flags, residual;
     
     void *device;
-    
-    // TODO: define what these return and call them in the channel emulation
     
     // stop the thread and clean up
     void (*detach)(struct acr7k_subch *subch);
@@ -55,7 +53,7 @@ typedef struct acr7k_subch {
 
 typedef struct {
     acr7k_cu_t *cpu;
-    int id, irq;
+    int id, irq, model;
     
     int subch_select;
     
