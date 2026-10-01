@@ -12,12 +12,6 @@
 #define IMGSIZE_315_10 18874368
 #define LBASIZE_315_10 8192
 
-typedef struct {
-    FILE *file;
-    
-    int lba, capacity;
-} disk_t;
-
 static inline uint64_t load_word(char *data, int index) {
     int dword_index = (index / 2) * 9;
     
@@ -58,6 +52,12 @@ static inline void store_word(char *data, int index, uint64_t value) {
     }
 }
 
+typedef struct {
+    FILE *file;
+    
+    int lba, capacity;
+} disk_t;
+
 int disk_seek(disk_t *disk, int lba) {
     if (lba < 0 || lba >= (LBASIZE_315_10 << disk->capacity)) {
         return -1;
@@ -66,3 +66,34 @@ int disk_seek(disk_t *disk, int lba) {
     disk->lba = lba;
     return 0;
 }
+
+int disk_read(disk_t *disk, char *buf) {
+    if (disk->lba < 0 || disk->lba >= (LBASIZE_315_10 << disk->capacity)) {
+        return -1;
+    }
+    
+    fseek(disk->file, (disk->lba++) * BLKSIZE_B, SEEK_SET);
+    
+    int success = fread(buf, BLKSIZE_B, 1, disk->file);
+    if (success != 1) {
+        return -1;
+    }
+    
+    return 0;
+}
+
+int disk_write(disk_t *disk, char *buf) {
+    if (disk->lba < 0 || disk->lba >= (LBASIZE_315_10 << disk->capacity)) {
+        return -1;
+    }
+    
+    fseek(disk->file, (disk->lba++) * BLKSIZE_B, SEEK_SET);
+    
+    int success = fwrite(buf, BLKSIZE_B, 1, disk->file);
+    if (success != 1) {
+        return -1;
+    }
+    
+    return 0;
+}
+
