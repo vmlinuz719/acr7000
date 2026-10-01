@@ -15,10 +15,10 @@
 typedef struct {
     FILE *file;
     
-    int lba;
+    int lba, capacity;
 } disk_t;
 
-uint64_t load_word(char *data, int index) {
+static inline uint64_t load_word(char *data, int index) {
     int dword_index = (index / 2) * 9;
     
     if (!(index & 1)) {
@@ -40,7 +40,7 @@ uint64_t load_word(char *data, int index) {
     }
 }
 
-void store_word(char *data, int index, uint64_t value) {
+static inline void store_word(char *data, int index, uint64_t value) {
     int dword_index = (index / 2) * 9;
     
     if (!(index & 1)) {
@@ -56,4 +56,13 @@ void store_word(char *data, int index, uint64_t value) {
         data[dword_index + 7] = value >> 8;
         data[dword_index + 8] = value;
     }
+}
+
+int disk_seek(disk_t *disk, int lba) {
+    if (lba < 0 || lba >= (LBASIZE_315_10 << disk->capacity)) {
+        return -1;
+    }
+    
+    disk->lba = lba;
+    return 0;
 }
