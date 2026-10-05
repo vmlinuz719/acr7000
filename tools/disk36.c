@@ -5,13 +5,6 @@
 #include <string.h>
 #include <stdint.h>
 
-#define BLKSIZE_W 512
-#define BLKSIZE_B ((BLKSIZE_W / 2) * 9)
-
-// multiply by 2 ^ capacity code (315-10: 0; 15: 1; 20: 2)
-#define IMGSIZE_315_10 18874368
-#define LBASIZE_315_10 8192
-
 static inline uint64_t load_word(char *data, int index) {
     int dword_index = (index / 2) * 9;
     
