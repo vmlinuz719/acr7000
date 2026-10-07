@@ -8,11 +8,6 @@
 #define BLKSIZE_W 512
 #define BLKSIZE_B ((BLKSIZE_W / 2) * 9)
 
-// multiply by 2 ^ capacity code (315-10: 0; 15: 1; 20: 2)
-#define WORDS_315_10 33554432                       // 150 MB
-#define IMGSIZE_315_10 ((WORDS_315_10 / 2) * 9)
-#define LBASIZE_315_10 (IMGSIZE_315_10 / BLKSIZE_B)
-
 static inline uint64_t load_word(char *data, int index) {
     int dword_index = (index / 2) * 9;
     
@@ -60,7 +55,7 @@ typedef struct {
 } disk_t;
 
 int disk_seek(disk_t *disk, int lba) {
-    if (lba < 0 || lba >= (LBASIZE_315_10 << disk->capacity)) {
+    if (lba < 0 || lba >= disk->capacity) {
         return -1;
     }
     
@@ -69,7 +64,7 @@ int disk_seek(disk_t *disk, int lba) {
 }
 
 int disk_read(disk_t *disk, char *buf) {
-    if (disk->lba < 0 || disk->lba >= (LBASIZE_315_10 << disk->capacity)) {
+    if (disk->lba < 0 || disk->lba >= disk->capacity) {
         return -1;
     }
     
@@ -84,7 +79,7 @@ int disk_read(disk_t *disk, char *buf) {
 }
 
 int disk_write(disk_t *disk, char *buf) {
-    if (disk->lba < 0 || disk->lba >= (LBASIZE_315_10 << disk->capacity)) {
+    if (disk->lba < 0 || disk->lba >= disk->capacity) {
         return -1;
     }
     
