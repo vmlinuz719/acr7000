@@ -115,6 +115,8 @@ typedef struct {
     /* Reserve two more words for a total size of 8 words */
 } rex_header_t;
 
+#define REX_HDR_MAGIC 0xBADC0FFEE
+
 #define REX_HDR_FLAG_UR 1
 #define REX_HDR_FLAG_RE 2
 
