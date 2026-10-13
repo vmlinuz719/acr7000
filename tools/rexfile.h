@@ -3,6 +3,7 @@
 
 /* REXFILE - for object files using the REX 36-bit format */
 
+/* REX relocation entry, 2 words when serialized */
 typedef struct {
     /* index into symbol table, 36 bits */
     unsigned long sym_idx;
@@ -33,6 +34,7 @@ typedef struct {
 #define REX_REL_OFFSET(x) (((x).type_offset) & 0777777)
 #define REX_REL_MAKE_TYPE_OFFSET(x, y) (((unsigned int)(x) << 18) | (y))
 
+/* REX symbol entry, 4 words when serialized */
 typedef struct {
     /*
      * symbol name, should be packed into 10 7-bit characters in 2 36-bit
@@ -55,6 +57,7 @@ typedef struct {
 #define REX_SYM_OFFSET(x) (((x).idx_off) & 0777777)
 #define REX_SYM_MAKE_SECTION_OFFSET(x, y) (((unsigned long)(x) << 18) | (y))
 
+/* REX section entry, 8 words when serialized */
 typedef struct {
     /*
      * section name, should be packed into 10 7-bit characters in 2 36-bit
@@ -93,6 +96,7 @@ typedef struct {
 #define REX_SECT_LOAD_ADDR(x) (((x).type_load_addr) & 0777777777)
 #define REX_SECT_MAKE_TYPE_LOAD_ADDR(x, y) (((unsigned long)(x) << 27) | (y))
 
+/* REX header, 8 words when serialized */
 typedef struct {
     /* must be 0xBADC0FFEE */
     unsigned long magic;
