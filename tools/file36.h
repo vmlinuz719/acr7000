@@ -8,7 +8,7 @@
 typedef struct {
     FILE *file;
     long word_idx, word_file_size;
-    int write;
+    int write, eof, error;
 } file36_t;
 
 file36_t *f36open(const char *fname, const char *mode);
@@ -18,5 +18,8 @@ size_t f36read(uint64_t *buf, size_t count, file36_t *file);
 size_t f36write(const uint64_t *buf, size_t count, file36_t *file);
 int f36seek(file36_t *file, long offset, int whence);
 long f36tell(file36_t *file);
+long f36size(file36_t *file);
+int f36eof(file36_t *file);
+int f36error(file36_t *file);
 
 #endif
