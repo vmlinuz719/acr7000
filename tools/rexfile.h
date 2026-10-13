@@ -21,7 +21,7 @@ typedef struct {
      *       ADDR18H | 19-35    | (S+A) >> 17
      *       ADDR18L | 19-35    | (S+A) & 0377777
      *       CPTR18S | 8-35     | ((S+A) << 1) + i
-     *       CPTR18C | 8-35     | ((S+A) << 2) + i
+     *       CPTR18C | 7-35     | ((S+A) << 2) + i
      *      ---------+----------+------------------
      *      Value: S = symbol address, A = addend, P = load address
      *      Bits from most to least significant
