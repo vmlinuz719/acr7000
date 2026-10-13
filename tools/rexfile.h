@@ -49,9 +49,13 @@ typedef struct {
      */
     unsigned long idx_offset;
 
-    /* set if symbol is undefined, least significant bit of 36-bit word */
-    int is_undef;
+    /* weak; local; undefined flags in least significant 3 bits of word */
+    int flags;
 } rex_symbol_t;
+
+#define REX_SYM_WEAK 4
+#define REX_SYM_LOCAL 2
+#define REX_SYM_UNDEF 1
 
 #define REX_SYM_SECTION(x) (((x).idx_off) >> 18)
 #define REX_SYM_OFFSET(x) (((x).idx_off) & 0777777)
