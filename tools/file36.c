@@ -123,3 +123,80 @@ size_t f36read(uint64_t *buf, size_t count, file36_t *file) {
     
     return words_read;
 }
+
+size_t f36write(const uint64_t *buf, size_t count, file36_t *file) {
+    if (buf == NULL || file == NULL || count == 0) return 0;
+    
+    file->error = 0;
+    size_t words_written = 0;
+    while (words_written < count) {
+        long dword_idx = file->word_idx >> 1;
+        int word_select = file->word_idx & 1;
+        
+        uint8_t dword[9] = {0,0,0,0,0,0,0,0,0};
+        int read_block = 0;
+        if (fseek(file->file, dword_idx * 9, SEEK_SET) == 0) {
+            if (fread(dword, 9 * sizeof(uint8_t), 1, file->file) == 1) {
+                read_block = 1;
+            }
+        }
+        
+        uint64_t a = 0, b = 0;
+        if (read_block) {
+            unpack92(dword, &a, &b);
+        }
+        
+        if (word_select) {
+            b = buf[words_written++];
+        } else {
+            a = buf[words_written++];
+            if (words_written < count && (file->word_idx + 1) / 2 == dword_idx) {
+                b = buf[words_written++];
+            }
+        }
+        
+        pack29(a, b, dword);
+        
+        fseek(file->file, dword_idx * 9, SEEK_SET);
+        if (fwrite(dword, 9 * sizeof(uint8_t), 1, file->file) != 1) {
+            if (ferror(file->file)) file->error = 1;
+            break;
+        }
+        
+        file->word_idx += (!word_select && words_written < count) ? 2 : 1;
+        if (file->word_idx > file->word_file_size) {
+            file->word_file_size = file->word_idx;
+        }
+    }
+    
+    return words_written;
+}
+
+file36_t *f36open(const char *fname, const char *mode) {
+    FILE *file = fopen(fname, mode);
+    if (!file) return NULL;
+
+    file36_t *file_ctx = malloc(sizeof(file36_t));
+    if (file_ctx == NULL) {
+        fclose(file);
+        return NULL;
+    }
+
+    file_ctx->file = file;
+    file_ctx->word_idx = 0;
+    file_ctx->write = (strchr(mode, 'w') != NULL || strchr(mode, '+') != NULL);
+
+    fseek(file, 0, SEEK_END);
+    long file_bytes = ftell(file);
+    file_ctx->word_file_size = (file_bytes / 9) * 2;
+
+    fseek(file, 0, SEEK_SET);
+    return file_ctx;
+}
+
+int f36close(file36_t *file) {
+    if (!file) return -1;
+    int result = fclose(file->file);
+    free(file);
+    return result;
+}
