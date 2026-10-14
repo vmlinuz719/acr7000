@@ -120,7 +120,7 @@ typedef struct {
     /* Number of relocation entries in relocation table */
     unsigned long relocs;
 
-    /* Reserve two more words for a total size of 8 words */
+    /* Reserve three more words for a total size of 8 words */
 } rex_header_t;
 
 #define REX_HDR_MAGIC 0xBADC0FFEE
