@@ -36,20 +36,40 @@ int save_hdr(file36_t *file, rex_header_t *hdr) {
     return -1 * (result != 8);
 }
 
+void print_hdr(rex_header_t *hdr) {
+    printf("=== REX File Header ===\n");
+    printf("  Magic:\t0x%09lX\n", hdr->magic);
+    printf(
+        "  Flags:\t%s%s%s\n",
+        (REX_HDR_FLAGS(*hdr) & REX_HDR_FLAG_RE) ? "RELOC" : "",
+        (REX_HDR_FLAGS(*hdr) == (REX_HDR_FLAG_RE | REX_HDR_FLAG_UR)) ? "," : "",
+        (REX_HDR_FLAGS(*hdr) & REX_HDR_FLAG_UR) ? "UNDEF" : ""
+    );
+    printf("  Sections:\t%u\n", hdr->sections);
+    printf("  Symbols:\t%lu\n", hdr->symbols);
+    printf("  Relocs:\t%lu\n", hdr->relocs);
+}
+
 int main(int argc, char *argv[]) {
     file36_t *file = f36open("test_rex_file.dat", "wb+");
-
     rex_header_t hdr = {
         .magic = REX_HDR_MAGIC,
-        .flags_time = REX_HDR_MAKE_FLAGS_TIME(REX_HDR_FLAG_RE, (int)time(NULL)),
+        .flags_time = REX_HDR_MAKE_FLAGS_TIME(REX_HDR_FLAG_RE | REX_HDR_FLAG_UR, (int)time(NULL)),
         .sections = 64,
         .symbols = 12345,
         .relocs = 20472
     };
-
     f36seek(file, 0, SEEK_SET);
     save_hdr(file, &hdr);
-
     f36close(file);
+
+    printf("Wrote fresh header to file...\n");
+
+    file36_t *file2 = f36open("test_rex_file.dat", "rb");
+    rex_header_t hdr2;
+    int result = load_hdr(file2, &hdr2);
+    print_hdr(&hdr2);
+    f36close(file2);
+
     return 0;
 }
