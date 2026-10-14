@@ -37,7 +37,7 @@ int save_hdr(file36_t *file, rex_header_t *hdr) {
 }
 
 int main(int argc, char *argv[]) {
-    file36_t *file = f36open("rexfile.dat", "wb+");
+    file36_t *file = f36open("test_rex_file.dat", "wb+");
 
     rex_header_t hdr = {
         .magic = REX_HDR_MAGIC,
