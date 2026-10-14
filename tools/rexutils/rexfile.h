@@ -39,8 +39,9 @@ typedef struct {
     /*
      * symbol name, should be packed into 10 7-bit characters in 2 36-bit
      * words
+     * should be null-terminated when loaded
      */
-    char name[10];
+    char name[11];
 
     /*
      * index into section table (18 bits), offset of symbol (18 bits) packed
@@ -66,8 +67,9 @@ typedef struct {
     /*
      * section name, should be packed into 10 7-bit characters in 2 36-bit
      * words
+     * should be null-terminated when loaded
      */
-    char name[10];
+    char name[11];
 
     /*
      * load address in least significant 27 bits
